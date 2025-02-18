@@ -26,7 +26,10 @@ const Products = () => {
         <div className="flex justify-evenly align-center flex-wrap gap-10">
           {
             productsarr.map((item)=>{
-             return <Product image={item.image} name={item.name}/>
+             return <>
+              <Product image={item.image} name={item.name}/>
+             </>
+
             })
           }
         </div>

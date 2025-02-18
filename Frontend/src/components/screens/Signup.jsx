@@ -2,6 +2,7 @@ import axios from 'axios';
 import React, { useState,useEffect } from 'react'
 import "../Utility/Footer.css";
 import { useNavigate } from 'react-router-dom';
+import ToastNotification from '../Alert Styling/ToastNotification';
 
 
 
@@ -30,31 +31,18 @@ const navigate=useNavigate();
             password:password
         };
           const res= await axios.post("http://localhost:8000/signup",payload);
-          // console.log(res);
-          // console.log(res.data.user);
-          // console.log(res.data);
-        //   console.log(res);
-        //   alert(res.response.data.message);
-        //   if(res.statusText=="OK"){
-        //     alert(res.data.message);
-        //     navigate("/",{state: res.data.user});
-        //     localStorage.setItem('user',JSON.stringify({username: res.data.user.username, id:res.data.user.id}))
-        //   }
-        // }
-        // catch(err){
-        //   alert(err.response.data.message);
-        //   navigate("/error");
-        // }
-        console.log(payload);
+      console.log(payload);
       console.log(res);
       if(res.statusText="OK"){
-        alert(res.data.message);
+        // alert(res.data.message);
+        ToastNotification("success".res.data.message);
         navigate("/");
         localStorage.setItem('user',JSON.stringify({username: res.data.user.username,id:res.data.user.id}));
       }
     }
     catch(err){
-      alert(err.response.data.message);
+      // alert(err.response.data.message);
+      ToastNotification("error",err.response.data.message)
       console.log(err);
     }
         Setusername("");

@@ -1,45 +1,65 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axios from "axios";
 import ToastNotification from '../Alert Styling/ToastNotification';
 
-const Login = () => {
+const UpdatePassword = () => {
+ const location=useLocation();
+ console.log(location);
+ const email=location.state.email;
+ console.log(email);
   const navigate=useNavigate();
-  const[email,Setemail]=useState("");
-  const [password,setPassword]=useState("");
+  const[newPass,SetnewPass]=useState("");
+  const [confirmPass,setconfirmPass]=useState("");
 
-  const emailChange=(e)=>{
-      Setemail(e.target.value);
+  const newPassChange=(e)=>{
+      SetnewPass(e.target.value);
   }
-  const passwordChange=(e)=>{
-      setPassword(e.target.value);
+  const confirmPassChange=(e)=>{
+      setconfirmPass(e.target.value);
   }
   const handleSubmit=async(e)=>{
-    e.preventDefault();
+    // e.preventDefault();
     try{
-      const payload={
-        email:email,
-        password:password
-      };
-      console.log(payload);
-      const res= await axios.post("http://localhost:8000/login",payload);
-      console.log(res);
-      if(res.statusText=="Created"){
-        // alert(res.data.message);
-        ToastNotification("success",res.data.message);
-        navigate("/");
-        localStorage.setItem('user',JSON.stringify({username: res.data.Loggeduser.username,id:res.data.Loggeduser.id,token:res.data.Loggeduser.token}));
-      }
+        if(newPass!==confirmPass){
+            return ToastNotification("error","Bothe Passwords Eneterd are not same!!");
+        }
+        if(newPass==confirmPass){
+            const payload={
+                email:email,
+                password:newPass
+            }
+            try{
+                const res= await axios.post("http://localhost:8000/updatepassword",payload);
+                console.log(res);
+                console.log(res.data.upadtedUser)
+                if(res.statusText=="OK"){
+                  // alert(res.data.message);
+                  ToastNotification("success",res.data.message);
+                  navigate("/");
+                  localStorage.setItem('user',JSON.stringify({username: res.data.upadtedUser.username,id:res.data.
+                    upadtedUser.id,token:res.data.upadtedUser.token}));
+                }
+            }
+            catch(err){
+                // ToastNotification("error","Both passwords are not Same!!");
+                console.log(err);
+                ToastNotification("error",err.response.data.message);
+
+            }
+
+        }
+
+
 
     }
     catch(err){
     // alert(err.response.data.message);
     ToastNotification("error",err.response.data.message);
-    if(err.response.data.message=="User not exist Signup again!!"){
-      navigate("/signup");
-    }
       console.log(err);
     }
+                SetnewPass("");
+                setconfirmPass("");
   }
 
 
@@ -49,7 +69,7 @@ const Login = () => {
     <div className="flex  sm:mx-20 md:mx-40 lg:mx-70 bg-gray-100">
 
         <div className="w-5/12 mt-10 px-6 py-12  bg-blue-500 mt-20">
-        <h1 className="text-white text-3xl font-bold leading-12 mb-10">Login</h1>
+        <h1 className="text-white text-3xl font-bold leading-12 mb-10">Update Password</h1>
         <h4 className="text-gray-200 text-lg font-medium leading-8">Get access to your Orders, Wishlist and Recommendations</h4>
         <img className="mx-auto sm:mt-20 lg:mt-30" src="https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/login_img_c4a81e.png"></img>
         </div>
@@ -57,48 +77,47 @@ const Login = () => {
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8 bg-white mt-20">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm ">
           <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">
-            Login Page
+            Update Password
           </h2>
         </div>
 
         <div className="mt-10">
           <div className="space-y-6">
             <div>
-              <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900">
-                Email address
+              <label htmlFor="new-password" className="block text-sm/6 font-medium text-gray-900">
+                New Password
               </label>
               <div className="mt-2">
                 <input
-                  id="email"
-                  name="email"
-                  type="email"
+                  id="new-password"
+                  name="new-password"
+                  type="password"
                   required
-                  autoComplete="email"
+                  autoComplete="password"
                   className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:text-sm/6"
-                  onChange={emailChange}
+                  onChange={newPassChange}
                 />
               </div>
             </div>
 
             <div>
               <div className="flex items-center justify-between">
-                <label htmlFor="password" className="block text-sm/6 font-medium text-gray-900">
-                  Password
+                <label htmlFor="confirm-password" className="block text-sm/6 font-medium text-gray-900">
+                 Confirm Password
                 </label>
                 <div class="text-sm">
-            <a  class="font-semibold text-indigo-600 hover:text-indigo-500" onClick={()=>navigate("/forgot-password")}>Forgot password?</a>
           </div>
 
               </div>
               <div className="mt-2">
                 <input
-                  id="password"
-                  name="password"
+                  id="confirm-password"
+                  name="confirm-password"
                   type="password"
                   required
-                  autoComplete="current-password"
+                  autoComplete="confirm-password"
                   className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-blue-600 sm:text-sm/6"
-                  onChange={passwordChange}
+                  onChange={confirmPassChange}
                 />
               </div>
             </div>
@@ -109,17 +128,12 @@ const Login = () => {
                 className="flex w-full justify-center rounded-md bg-orange-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-orange-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                 onClick={handleSubmit}
               >
-                LogIn
+                Submit
               </button>
             </div>
           </div>
 
-          <p className="mt-10 text-center text-sm/6 text-gray-500">
 
-            <a className="font-semibold text-blue-600 hover:text-blue-500" onClick={()=>navigate("/signup")}>
-            New to Flipkart? Create an account
-            </a>
-          </p>
         </div>
       </div>
 
@@ -128,4 +142,4 @@ const Login = () => {
   )
 }
 
-export default Login
+export default UpdatePassword;

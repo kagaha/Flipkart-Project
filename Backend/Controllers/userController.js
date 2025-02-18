@@ -30,6 +30,7 @@ export const Signup = async (req, res) => {
     user,
   });
 };
+
 export const login = async (req, res) => {
   const { email, password } = req.body;
   console.log(email, password);
@@ -53,7 +54,7 @@ export const login = async (req, res) => {
       expiresIn: "1m",
     });
     const Loggeduser={
-      username: user.username,
+    username: user.username,
     email: user.email,
     id: user._id,
     token:token
@@ -65,6 +66,9 @@ export const login = async (req, res) => {
     return res.status(404).json({ message: "Data not found", err });
   }
 };
+
+
+
 export const VerifyOtp=async(req,res)=>{
   const{email}=req.body;
   if(!email){
@@ -75,4 +79,30 @@ export const VerifyOtp=async(req,res)=>{
     return res.status(409).json({message:"Entered email not exist try again"});
   }
   return res.status(200).json({message:"OTP sent successfully!"});
+}
+
+
+export const updatePassword=async(req,res)=>{
+  try{
+      const {email,password}=req.body;
+      console.log(email,password);
+      const user=await User.findOne({email});
+      console.log(user);
+      if(!user){
+        return res.status(404).json({message:"User not exists"});
+      }
+      const hashPass=await bcrypt.hash(password,10);
+      const token= jwt.sign({email:email},process.env.SECRET_KEY,{expiresIn:"1h"});
+      user.password=hashPass;
+      await user.save();
+      const upadtedUser={
+        id:user._id,
+        username:user.username,
+        token:token,
+      }
+      return res.status(200).json({message:"Password Updated Successfully!!",upadtedUser});
+  }
+  catch (err) {
+    return res.status(404).json({ message: "Data not found", err });
+  }
 }
