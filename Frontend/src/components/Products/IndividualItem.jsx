@@ -21,8 +21,11 @@ const IndividualItem = () => {
    const handleAddToCart=async(product)=>{
     try{
       console.log(product._id);
+      const userDet=JSON.parse(localStorage.getItem("user"));
+      console.log(userDet);
+      console.log(userDet.id);
       if(localStorage.getItem("user")){
-        const res=await axios.post(`http://localhost:8000/cart/${product._id}`);
+        const res=await axios.post(`http://localhost:8000/cart/${product._id}/${userDet.id}`);
         console.log(res);
         // SetcartProd((prevItems)=>[...prevItems,res.data.newCart]);
         // alert(res.data.message);

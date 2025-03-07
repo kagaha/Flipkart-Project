@@ -33,9 +33,9 @@ const navigate=useNavigate();
           const res= await axios.post("http://localhost:8000/signup",payload);
       console.log(payload);
       console.log(res);
-      if(res.statusText="OK"){
+      if(res.status==200){
         // alert(res.data.message);
-        ToastNotification("success".res.data.message);
+        ToastNotification("success",res.data.message);
         navigate("/");
         localStorage.setItem('user',JSON.stringify({username: res.data.user.username,id:res.data.user.id}));
       }

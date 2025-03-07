@@ -10,12 +10,17 @@ const Cart = () => {
   const {setCartCount}=useCart();
   const [cartData, SetCartData]=useState([]);
   const [subtotalval,SetsubTotalVal]=useState(0);
+  const userDet= JSON.parse(localStorage.getItem("user"));
   useEffect(()=>{
     const fectchDatafromCart=async()=>{
         try{
-          const res=await axios.get("http://localhost:8000/cart");
-          SetCartData(res.data.CartDatas);
-          const subtotal = res.data.CartDatas.reduce(
+
+          // console.log(userDet.id);
+          const res=await axios.get(`http://localhost:8000/cart/${userDet.id}`);
+
+          // console.log(res.data.cartDatas.items);
+          SetCartData(res.data.CartDatas.items);
+          const subtotal = res.data.CartDatas.items.reduce(
             (acc, item) => acc + item.price*item.quantity,
             0
           );
@@ -33,7 +38,7 @@ const Cart = () => {
   const deleteCart=async(item)=>{
     try{
       console.log({item});
-      const res=await axios.delete(`http://localhost:8000/cart/${item._id}`);
+      const res=await axios.delete(`http://localhost:8000/cart/${item.productId}/${userDet.id}`);
       console.log(res.data);
       // alert(res.data.message);
       // SetCartData((prevCart) => prevCart.filter((cartItem) => cartItem._id !== item._id));
@@ -54,19 +59,19 @@ const Cart = () => {
     try{
       console.log(id);
       console.log(newQuantity);
-      const res=await axios.put(`http://localhost:8000/cart/${id}`,{
+      const res=await axios.put(`http://localhost:8000/cart/${id}/${userDet.id}`,{
         quantity:newQuantity
       });
       console.log(res.data);
-      if(res.status==200){
-       return fectchDatafromCart();
+      if(res.status===200){
+        fectchDatafromCart();
       }
 
     }
     catch(err){
       // alert(err.response.data.message || "data Not fsxdfrtgyhujik");
-      ToastNotification("error",err.response.data.message || "data not found check connection");
-      console.log(err);
+      ToastNotification("error",err?.response?.data?.message);
+      
     }
 
   }
@@ -83,6 +88,7 @@ const Cart = () => {
     }
   }
 
+
   // console.log(cartData);
   const shipping = 5.0;
   const tax = (subtotalval * 0.08).toFixed(2);
@@ -93,6 +99,7 @@ const Cart = () => {
       <h2 className="text-2xl font-bold mb-5">Shopping Cart</h2>
       <div className="flex flex-col gap-5">
         {cartData.map((item) => (
+
           <div
             key={item._id}
             className="flex items-center justify-between border p-4 rounded-lg shadow-md"
@@ -111,11 +118,11 @@ const Cart = () => {
             </div>
             <div className="flex items-center gap-4">
               <button className="px-3 py-1 bg-gray-200 rounded-md text-xl font-semibold hover:bg-gray-300"
-              onClick={()=>UpdateQuantity(item._id, item.quantity-1)}>
+              onClick={()=>UpdateQuantity(item.productId, item.quantity-1)}>
                 − </button>
               <span className="text-lg font-medium">{item.quantity}</span>
               <button className="px-3 py-1 bg-gray-200 rounded-md text-xl font-semibold hover:bg-gray-300"
-              onClick={()=>UpdateQuantity(item._id, item.quantity+1)}>
+              onClick={()=>UpdateQuantity(item.productId, item.quantity+1)}>
                 + </button>
 
               <button className="text-red-500 hover:text-red-700 cursor-pointer" onClick={()=>deleteCart(item)}>
